@@ -1,118 +1,94 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import * as React from 'react';
+import { StyleSheet, View, Button, Alert } from 'react-native';
+import { Passkey } from 'react-native-passkey';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export default function App() {
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+ 
+  async function createAccount() {
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+    try {
+      //generate a requestJson from backend
+      const requestJson = {
+        'challenge': 'T1xCsnxM2DNL2KdK5CLa6fMhD7OBqho6syzInk_n-Uo',
+        'rp': {
+          'name': 'Passkey',
+          'id': 'your_assetlinks_domain_name',
+        },
+        'user': {
+          'id': 'user123',
+          'name': 'john.doe@example.coms',
+          'displayName': 'john Does',
+        },
+        'pubKeyCredParams': [
+          {
+            'type': 'public-key',
+            'alg': -7,
+          },
+        ],
+        'authenticatorSelection': {
+          'authenticatorAttachment': 'platform',
+          'requireResidentKey': true,
+          'userVerification': 'preferred',
+        },
+        'timeout': 60000,
+        'attestation': 'direct',
+      };
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+      const result = await Passkey.createPlatformKey(requestJson);
+      // call api to save the result to backend
+      console.log('Registration result: ',result);
+
+    } catch (e) {
+      console.log('Registration result:',e);
+
+    }
+  }
+
+  async function authenticateAccount() {
+
+    try {
+       //generate a requestJson from backend
+      const requestJson = {
+      'challenge': 'T1xCsnxM2DNL2KdK5CLa6fMhD7OBqho6syzInk_n-Uo',
+      'allowCredentials': [],
+      'timeout': 1800000,
+      'userVerification': 'required',
+      'rpId': 'your_assetlinks_domain_name',
+      };
+
+      const result = await Passkey.getPlatformKey(requestJson);
+      // call api to verify the result from backend
+
+      console.log('Authentication result: ', result);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function isSupported() {
+    const result = Passkey.isSupported();
+    Alert.alert(result ? 'Supported' : 'Not supported');
+  }
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Button title="Create Account" onPress={createAccount} />
+      <Button title="Authenticate" onPress={authenticateAccount} />
+      <Button title="isSupported?" onPress={isSupported} />
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  box: {
+    width: 60,
+    height: 60,
+    marginVertical: 20,
   },
 });
-
-export default App;

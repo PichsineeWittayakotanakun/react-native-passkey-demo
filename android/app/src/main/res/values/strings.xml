@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Passkey</string>
+    <string name="asset_statements" translatable="false">
+    [{
+      \"include\": \"https://your_assetlinks_domain_name/.well-known/assetlinks.json\"
+    }]
+    </string>
 </resources>
